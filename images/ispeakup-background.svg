@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="309px" height="310px" viewBox="0 0 309 310" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40.1 (33804) - http://www.bohemiancoding.com/sketch -->
+    <title>ispeakup-background</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <radialGradient cx="48.4214395%" cy="50%" fx="48.4214395%" fy="50%" r="100%" id="radialGradient-1">
+            <stop stop-color="#31897C" offset="0%"></stop>
+            <stop stop-color="#26AC90" offset="100%"></stop>
+        </radialGradient>
+        <rect id="path-2" x="0" y="0" width="309" height="310"></rect>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop-HD-Copy-5" transform="translate(-541.000000, -207.000000)">
+            <g id="categories" transform="translate(202.000000, 207.000000)">
+                <g id="center" transform="translate(339.000000, 0.000000)">
+                    <mask id="mask-3" fill="white">
+                        <use xlink:href="#path-2"></use>
+                    </mask>
+                    <use id="ispeakup-background" fill="url(#radialGradient-1)" xlink:href="#path-2"></use>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

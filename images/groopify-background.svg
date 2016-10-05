@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="310px" height="310px" viewBox="0 0 310 310" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40.1 (33804) - http://www.bohemiancoding.com/sketch -->
+    <title>groopify-background</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <radialGradient cx="50%" cy="53.0415206%" fx="50%" fy="53.0415206%" r="88.9181737%" id="radialGradient-1">
+            <stop stop-color="#93CE45" offset="0%"></stop>
+            <stop stop-color="#67932E" offset="100%"></stop>
+        </radialGradient>
+        <rect id="path-2" x="0" y="0" width="310" height="310"></rect>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop-HD-Copy-5" transform="translate(-885.000000, -207.000000)">
+            <g id="categories" transform="translate(202.000000, 207.000000)">
+                <g id="Group" transform="translate(683.000000, 0.000000)">
+                    <g id="right-top">
+                        <mask id="mask-3" fill="white">
+                            <use xlink:href="#path-2"></use>
+                        </mask>
+                        <use id="groopify-background" fill="url(#radialGradient-1)" xlink:href="#path-2"></use>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
