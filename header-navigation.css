@@ -1,8 +1,8 @@
 
 .main {
   
-  font-family: "Helvetica Neue", Helvetica, "Lucida Grande", sans-serif;
-  font-weight: 700;
+  font-family: "Raleway", Helvetica, "Lucida Grande", sans-serif;
+  font-weight: 900;
 }
 
 body {
@@ -101,7 +101,7 @@ a {
 }
 
 #footer-buttons p {
-  font-weight: 500;
+  font-weight: 800;
   width: 100%;
 }
 
