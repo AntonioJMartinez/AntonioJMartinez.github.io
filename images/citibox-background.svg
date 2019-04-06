@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="citibox-background-b" cy="49.774%" r="112.815%" fx="50%" fy="49.774%">
+      <stop offset="0%" stop-color="#7133E1"/>
+      <stop offset="100%" stop-color="#4D219E"/>
+    </radialGradient>
+    <rect id="citibox-background-a" width="512" height="512"/>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <path stroke="#979797" stroke-linecap="square" d="M256.5,68.5 L258,70"/>
+    <use fill="#7942ED" xlink:href="#citibox-background-a"/>
+    <use fill="url(#citibox-background-b)" xlink:href="#citibox-background-a"/>
+  </g>
+</svg>

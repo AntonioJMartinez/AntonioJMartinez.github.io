@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="loud-background-b" cy="49.774%" r="112.815%" fx="50%" fy="49.774%">
+      <stop offset="0%" stop-color="#FE1863"/>
+      <stop offset="100%" stop-color="#BE1C51"/>
+    </radialGradient>
+    <rect id="loud-background-a" width="512" height="512"/>
+  </defs>
+  <g fill="none" fill-rule="evenodd">
+    <path stroke="#979797" stroke-linecap="square" d="M256.5,68.5 L258,70"/>
+    <use fill="#FE1863" xlink:href="#loud-background-a"/>
+    <use fill="url(#loud-background-b)" xlink:href="#loud-background-a"/>
+  </g>
+</svg>
