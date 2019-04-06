@@ -14,7 +14,7 @@
 .text {
 	width: 60%;
 	margin-bottom: 5%;
-  text-align: center;
+  text-align: left;
   font-size: 18px;
 }
 
@@ -50,7 +50,7 @@
 }
 
 .website-title:hover {
-	transform:scale(1.2);
+	transform:scale(1.05);
   -webkit-transition: 0.1s ease-out;
   transition: 0.1s ease-out;
 }
