@@ -289,6 +289,13 @@ a {
   }
 }
 
+@media all and (max-width: 400px) {
+
+  #headerText {
+    font-size: 28px;
+  }
+}
+
 @media all and (min-width: 450px) {
 
   .monochrome {
