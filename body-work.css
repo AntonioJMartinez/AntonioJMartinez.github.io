@@ -59,6 +59,29 @@
   color: black;
 }
 
+#website-title-citibox {
+  color: #7942ED;
+}
+
+#website-title-loud {
+  color: #FE1863;
+}
+
+#website-title-groopify {
+  color: #A9C924;
+}
+
+#website-title-yaap {
+  color: #00AD8F;
+}
+
+#groopify-link {
+  color: #A9C924;
+}
+
+#groopify-link:visited {
+  color: #A9C924;
+}
 
 /* Large Screens */
 
@@ -75,7 +98,27 @@
 /* Medium Screens */
 
 @media all and (max-width: 800px) {
+  .text {
+    width: 80%;
+    margin-bottom: 8%;
+    margin-top: 2%;
+  }
 
+  .images {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .images img {
+    max-height: 400px;
+    margin-bottom: 20px;
+  }
+
+  #gif {
+    max-height: 288px;
+    left: 9%;
+    top: 13%; 
+  }
 }
 
 
@@ -108,7 +151,27 @@
 }
 
 @media all and (max-width: 400px) {
+  text {
+    width: 80%;
+    margin-bottom: 8%;
+    margin-top: 2%;
+  }
 
+  .images {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .images img {
+    max-height: 400px;
+    margin-bottom: 20px;
+  }
+
+  #gif {
+    max-height: 288px;
+    left: 9%;
+    top: 13%; 
+  }
 }
 
 @media all and (min-width: 450px) {

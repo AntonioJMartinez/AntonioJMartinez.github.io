@@ -276,12 +276,16 @@ a {
     width: 300px;
   }
 
+  #headerText {
+    font-size: 42px;
+  }
+
 }
 
-@media all and (max-width: 400px) {
+@media all and (max-width: 450px) {
 
   #headerText {
-    height: 80px;
+    font-size: 40px;
   }
 }
 
