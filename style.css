@@ -264,3 +264,16 @@ a {
 .small-card {
   width: 254px;
 }
+
+.particle {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  font-size: 24px;
+  color: #555;
+  opacity: 0;
+  z-index: 9999;
+  user-select: none;
+  text-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
