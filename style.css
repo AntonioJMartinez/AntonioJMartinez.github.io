@@ -250,12 +250,13 @@ a {
 }
 
 @keyframes wowText {
-  0% { opacity: 0; transform: translateY(24px) scale(0.98); }
-  100% { opacity: 1; transform: translateY(0) scale(1); }
+  0% { opacity: 0; transform: translateY(12px) scale(0.95); letter-spacing: 0.05em; }
+  100% { opacity: 1; transform: translateY(0) scale(1); letter-spacing: 0em; }
 }
 
 .contact {
-  font-size: 1.05rem;
+  font-size: 1.2em;
+  font-style: normal;
   color: #555;
   margin-bottom: 0;
   line-height: 1.4;
@@ -276,4 +277,58 @@ a {
   z-index: 9999;
   user-select: none;
   text-shadow: 0 0 5px rgba(0,0,0,0.2);
+}
+
+a.website-title:hover {
+	-webkit-transform:scale(1.05);
+	        transform:scale(1.05);
+    -webkit-transition: 0.1s ease-out;
+    transition: 0.1s ease-out;
+}
+
+.project-title {
+    text-align: center;
+    margin: 40px 0;
+}
+.work-showcase {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+}
+.work-item {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    width: 200px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    background-color: #fff;
+}
+.work-item img {
+    max-width: 100px;
+    height: auto;
+    margin-bottom: 15px;
+    border-radius: 22.5%;
+}
+.work-item h2 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+.work-item p {
+    font-size: 0.9em;
+    color: #666;
+}
+
+/* Large Screens */
+
+@media all and (max-width: 2000px) {
+  #list-items {
+    gap: 20px;
+  }
+  .container, .container.featured {
+    max-width: 100%;
+    width: 100%;
+  }
 }
