@@ -1,34 +1,231 @@
+/* Apple-style design */
+body {
+    background: linear-gradient(180deg, #fbfbfd 0%, #f5f5f7 100%);
+    min-height: 100vh;
+}
+
 .project-title {
     text-align: center;
-    margin: 40px 0;
+    margin: 60px 0 40px;
+    padding: 0 20px;
 }
+
+.project-title h1 {
+    font-size: 3.5rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: #1d1d1f;
+    margin-bottom: 12px;
+}
+
+.project-title p {
+    font-size: 1.25rem;
+    color: #86868b;
+    font-weight: 400;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Vertical apps list */
 .work-showcase {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
-    padding: 20px;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+    padding: 40px 20px 80px;
+    max-width: 1000px;
+    margin: 0 auto;
 }
+
 .work-item {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    width: 200px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    background-color: #fff;
+    width: 100%;
+    max-width: 900px;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 0;
 }
-.work-item img {
-    max-width: 100px;
-    height: auto;
-    margin-bottom: 15px;
-    border-radius: 22.5%;
+
+.app-header {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 24px;
+    width: 100%;
+    justify-content: center;
 }
+
+.work-item .app-icon {
+    width: 120px;
+    height: 120px;
+    border-radius: 26.8%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex-shrink: 0;
+}
+
+.work-item:hover .app-icon {
+    transform: scale(1.05);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15), 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+.app-info {
+    text-align: left;
+}
+
 .work-item h2 {
-    font-size: 1.2em;
-    margin-bottom: 10px;
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #1d1d1f;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
 }
+
 .work-item p {
-    font-size: 0.9em;
-    color: #666;
+    font-size: 1rem;
+    color: #86868b;
+    line-height: 1.5;
+    margin: 0;
+    max-width: 400px;
+}
+
+.app-store-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 10px 20px;
+    background: #0071e3;
+    color: white;
+    border-radius: 980px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.app-store-badge:hover {
+    background: #0077ed;
+}
+
+/* Screenshots container */
+.screenshots-container {
+    width: 100%;
+    margin-top: 24px;
+    overflow: hidden;
+    position: relative;
+}
+
+.screenshots-scroll {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    padding: 20px 20px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    justify-content: flex-start;
+    scroll-padding-left: 20px;
+}
+
+.screenshots-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+img.screenshot {
+    flex-shrink: 0;
+    height: 460px;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    border-radius: 0 !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+    scroll-snap-align: center;
+    transition: transform 0.3s ease;
+}
+
+img.screenshot:hover {
+    transform: scale(1.02);
+}
+
+.screenshots-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    color: #86868b;
+    font-size: 0.875rem;
+}
+
+.screenshots-loading::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #86868b;
+    border-top-color: transparent;
+    border-radius: 50%;
+    margin-left: 10px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Divider between apps */
+.work-item:not(:last-child)::after {
+    content: '';
+    display: block;
+    width: 100%;
+    max-width: 600px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d2d2d7, transparent);
+    margin-top: 60px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .project-title h1 {
+        font-size: 2.5rem;
+    }
+    
+    .project-title p {
+        font-size: 1.1rem;
+    }
+    
+    .app-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .app-info {
+        text-align: center;
+    }
+    
+    .work-item .app-icon {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .work-item h2 {
+        font-size: 1.5rem;
+    }
+    
+    .work-item p {
+        max-width: 100%;
+    }
+    
+    img.screenshot {
+        height: 340px;
+    }
+    
+    .screenshots-scroll {
+        justify-content: flex-start;
+        padding-left: 20px;
+        padding-right: 20px;
+    }
 } 
