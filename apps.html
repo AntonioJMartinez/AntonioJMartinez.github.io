@@ -134,7 +134,7 @@
 
             <div class="work-item" data-app-id="1182999726">
                 <div class="app-header">
-                    <img src="images/apps/nimblit.pdf" alt="Nimblit App Icon" class="app-icon">
+                    <img src="images/apps/nimblit.png" alt="Nimblit App Icon" class="app-icon">
                     <div class="app-info">
                         <h2>Nimblit</h2>
                         <p>Challenge your mind with a set of fun and engaging brain-training games and puzzles.</p>
@@ -154,67 +154,195 @@
     </section>
     
     <script>
-        // Fetch iOS screenshots by scraping the App Store website
-        async function fetchAppScreenshots(appId, country = 'us') {
+        const APP_STORE_PROXIES = [
+            (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
+        ];
+        const FETCH_TIMEOUT_MS = 8000;
+
+        function getAppStoreContext(appStoreUrl) {
             try {
-                // Get the App Store URL for this app
-                const appStoreUrl = `https://apps.apple.com/${country}/app/id${appId}`;
-                // Use CORS proxy to fetch the page
-                const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(appStoreUrl)}`;
-                
-                const response = await fetch(proxyUrl, {
-                    headers: {
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-                    }
-                });
-                
-                if (response.ok) {
-                    const html = await response.text();
-                    // Extract screenshot URLs from the HTML
-                    // Look for mzstatic.com URLs that are screenshots (not icons or placeholders)
-                    const regex = /https:\/\/is\d+-ssl\.mzstatic\.com\/image\/thumb\/Purple[^\/]+\/[^\/]+\/[^\/]+\/[^\/]+\/[^\/]+\/[^.]+\.(jpg|png)\/(\d+)x(\d+)bb(?:-\d+)?\.(webp|jpg)/g;
-                    const matches = html.matchAll(regex);
-                    
-                    const screenshotMap = new Map(); // Use map to deduplicate by base URL
-                    for (const match of matches) {
-                        const fullUrl = match[0];
-                        // Skip placeholders and icons
-                        if (fullUrl.includes('Placeholder') || fullUrl.includes('AppIcon')) continue;
-                        
-                        // Extract base URL (without size) for deduplication
-                        const baseUrl = fullUrl.replace(/\/\d+x\d+bb(?:-\d+)?\.(webp|jpg)$/, '');
-                        
-                        // Parse dimensions
-                        const width = parseInt(match[2], 10);
-                        const height = parseInt(match[3], 10);
-                        
-                        const current = screenshotMap.get(baseUrl);
-                        const area = width * height;
-                        if (!current || area > current.area) {
-                            screenshotMap.set(baseUrl, { width, height, area });
-                        }
-                    }
-                    
-                    const screenshots = [...screenshotMap.entries()].map(([baseUrl, size]) =>
-                        `${baseUrl}/${size.width}x${size.height}bb.jpg`
-                    );
-                    if (screenshots.length > 0) {
-                        return screenshots;
-                    }
-                }
-                
-                // Fallback to iTunes API
-                return await fetchFromItunesAPI(appId, country);
+                const parsedUrl = new URL(appStoreUrl);
+                const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
+                const country = pathParts[0] || 'us';
+                const appIdMatch = parsedUrl.pathname.match(/id(\d+)/);
+
+                return {
+                    pageUrl: parsedUrl.href,
+                    country,
+                    appId: appIdMatch ? appIdMatch[1] : null
+                };
             } catch (error) {
-                console.warn(`App Store scraping failed for app ${appId}, falling back:`, error);
-                return await fetchFromItunesAPI(appId, country);
+                console.warn('Invalid App Store URL:', appStoreUrl, error);
+                return { pageUrl: appStoreUrl, country: 'us', appId: null };
             }
+        }
+
+        async function fetchAppStoreHtml(appStoreUrl) {
+            let lastError = null;
+
+            for (const buildProxyUrl of APP_STORE_PROXIES) {
+                const proxiedUrl = buildProxyUrl(appStoreUrl);
+
+                try {
+                    const response = await fetchWithTimeout(proxiedUrl, { cache: 'no-store' });
+                    if (!response.ok) {
+                        throw new Error(`Proxy returned ${response.status}`);
+                    }
+
+                    const html = await response.text();
+                    if (html.includes('<html') || html.includes('<!DOCTYPE html')) {
+                        return html;
+                    }
+
+                    throw new Error('Proxy returned unexpected content');
+                } catch (error) {
+                    lastError = error;
+                }
+            }
+
+            throw lastError || new Error('Unable to load App Store page');
+        }
+
+        async function fetchWithTimeout(url, options = {}) {
+            const controller = new AbortController();
+            const timeoutId = window.setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+
+            try {
+                return await fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                });
+            } finally {
+                window.clearTimeout(timeoutId);
+            }
+        }
+
+        function parseSrcset(srcset = '') {
+            return srcset
+                .split(',')
+                .map((entry) => {
+                    const [url, descriptor] = entry.trim().split(/\s+/);
+                    const width = parseInt((descriptor || '').replace('w', ''), 10) || 0;
+
+                    return { url, width };
+                })
+                .filter(({ url }) => Boolean(url));
+        }
+
+        function getImageBaseUrl(url) {
+            return url.replace(/\/\d+x\d+bb(?:-\d+)?\.(?:webp|png|jpe?g)$/i, '');
+        }
+
+        function isScreenshotUrl(url, requireDeviceName = false) {
+            if (!url || !/mzstatic\.com/i.test(url) || /Placeholder|AppIcon/i.test(url)) {
+                return false;
+            }
+
+            if (requireDeviceName && !/(iPhone|iPad|AppleTV|watch|Mac)/i.test(url)) {
+                return false;
+            }
+
+            return /\/\d+x\d+bb(?:-\d+)?\.(?:webp|png|jpe?g)$/i.test(url);
+        }
+
+        function pickLargestCandidate(srcset, requireDeviceName = false) {
+            return parseSrcset(srcset)
+                .filter(({ url }) => isScreenshotUrl(url, requireDeviceName))
+                .reduce((largest, candidate) => {
+                    if (!largest || candidate.width > largest.width) {
+                        return candidate;
+                    }
+
+                    return largest;
+                }, null);
+        }
+
+        function dedupeScreenshotCandidates(candidates) {
+            const screenshotMap = new Map();
+
+            for (const candidate of candidates) {
+                if (!candidate) continue;
+
+                const key = getImageBaseUrl(candidate.url);
+                const existing = screenshotMap.get(key);
+
+                if (!existing || candidate.width > existing.width) {
+                    screenshotMap.set(key, candidate);
+                }
+            }
+
+            return [...screenshotMap.values()].map(({ url }) => url);
+        }
+
+        function extractFromScreenshotShelf(doc) {
+            const sections = [
+                ...doc.querySelectorAll('section[id^="product_media_phone"]'),
+                ...doc.querySelectorAll('section[id*="product_media_phone"]'),
+                ...doc.querySelectorAll('section[id*="product_media_iphone"]'),
+                ...doc.querySelectorAll('section[id*="product_media"]')
+            ];
+
+            const pictures = sections.flatMap((section) =>
+                [...section.querySelectorAll(
+                    '.artwork-component--orientation-portrait picture, .artwork-component--orientation-landscape picture'
+                )]
+            );
+
+            return dedupeScreenshotCandidates(
+                pictures.map((picture) => {
+                    const source =
+                        picture.querySelector('source[type="image/jpeg"]') ||
+                        picture.querySelector('source[type="image/webp"]') ||
+                        picture.querySelector('source[srcset]');
+
+                    return pickLargestCandidate(source?.getAttribute('srcset') || '');
+                })
+            );
+        }
+
+        function extractFromAllSources(doc) {
+            const sources = [
+                ...doc.querySelectorAll('source[srcset*="iPhone_"]'),
+                ...doc.querySelectorAll('source[srcset*="iPad_"]')
+            ];
+
+            return dedupeScreenshotCandidates(
+                sources.map((source) => pickLargestCandidate(source.getAttribute('srcset') || '', true))
+            );
+        }
+
+        function extractScreenshotsFromHtml(html) {
+            const doc = new DOMParser().parseFromString(html, 'text/html');
+            const screenshotShelfImages = extractFromScreenshotShelf(doc);
+            if (screenshotShelfImages.length > 0) {
+                return screenshotShelfImages;
+            }
+
+            return extractFromAllSources(doc);
+        }
+
+        async function fetchAppScreenshots(appStoreUrl) {
+            const { pageUrl, appId, country } = getAppStoreContext(appStoreUrl);
+
+            try {
+                const html = await fetchAppStoreHtml(pageUrl);
+                const screenshots = extractScreenshotsFromHtml(html);
+
+                if (screenshots.length > 0) {
+                    return screenshots;
+                }
+            } catch (error) {
+                console.warn(`App Store parsing failed for ${pageUrl}, falling back:`, error);
+            }
+
+            return appId ? fetchFromItunesAPI(appId, country) : [];
         }
 
         async function fetchFromItunesAPI(appId, country = 'us') {
             try {
                 const url = `https://itunes.apple.com/lookup?id=${appId}&entity=software&country=${country}&_=${Date.now()}`;
-                const response = await fetch(url);
+                const response = await fetchWithTimeout(url);
                 const data = await response.json();
                 
                 if (data.results && data.results.length > 0) {
@@ -232,24 +360,54 @@
             }
         }
 
+        function renderScreenshots(container, screenshots, appName) {
+            container.replaceChildren();
+
+            screenshots.forEach((url, index) => {
+                const image = document.createElement('img');
+                image.src = url;
+                image.alt = `${appName} screenshot ${index + 1}`;
+                image.className = 'screenshot';
+                image.loading = 'lazy';
+                image.decoding = 'async';
+                image.referrerPolicy = 'no-referrer';
+                container.appendChild(image);
+            });
+        }
+
+        function renderScreenshotMessage(container, message) {
+            const paragraph = document.createElement('p');
+            paragraph.className = 'screenshots-message';
+            paragraph.textContent = message;
+            container.replaceChildren(paragraph);
+        }
+
         async function loadAllScreenshots() {
-            const appItems = document.querySelectorAll('.work-item[data-app-id]');
-            
-            for (const item of appItems) {
-                const appId = item.dataset.appId;
+            const appItems = [...document.querySelectorAll('.work-item[data-app-id]')];
+
+            await Promise.allSettled(appItems.map(async (item) => {
                 const screenshotsScroll = item.querySelector('.screenshots-scroll');
-                
-                // Default to US store for screenshots
-                const screenshots = await fetchAppScreenshots(appId, 'us');
-                
-                if (screenshots.length > 0) {
-                    screenshotsScroll.innerHTML = screenshots.map(url => 
-                        `<img src="${url}" alt="App Screenshot" class="screenshot" loading="lazy">`
-                    ).join('');
-                } else {
-                    screenshotsScroll.innerHTML = '<p style="color: #86868b;">Screenshots not available</p>';
+                const appStoreUrl = item.querySelector('.app-store-badge')?.href;
+                const appName = item.querySelector('h2')?.textContent?.trim() || 'App';
+
+                if (!screenshotsScroll || !appStoreUrl) {
+                    return;
                 }
-            }
+
+                try {
+                    const screenshots = await fetchAppScreenshots(appStoreUrl);
+
+                    if (screenshots.length > 0) {
+                        renderScreenshots(screenshotsScroll, screenshots, appName);
+                        return;
+                    }
+
+                    renderScreenshotMessage(screenshotsScroll, 'Screenshots not available in browser');
+                } catch (error) {
+                    console.error(`Failed to load screenshots for ${appName}:`, error);
+                    renderScreenshotMessage(screenshotsScroll, 'Screenshots not available in browser');
+                }
+            }));
         }
 
         // Load screenshots when DOM is ready
