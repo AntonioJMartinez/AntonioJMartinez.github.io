@@ -7,8 +7,8 @@
     <meta name="description" content="A showcase of mobile applications developed by Antonio J. Martínez.">
     <title>Antonio J. Martínez - Apps</title>
     <link rel="shortcut icon" href="favicon.ico">
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="apps.css">
+    <link rel="stylesheet" href="style.css?v=20260318-1">
+    <link rel="stylesheet" href="apps.css?v=20260318-3">
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600" rel="stylesheet">
 </head>
 <body class="no-js">
@@ -44,7 +44,9 @@
         <div class="work-showcase">
             <div class="work-item" data-app-id="6502008343">
                 <div class="app-header">
-                    <img src="images/apps/solora.jpg" alt="Solora App Icon" class="app-icon">
+                    <div class="app-icon-shell">
+                        <img src="images/apps/solora.jpg" alt="Solora App Icon" class="app-icon">
+                    </div>
                     <div class="app-info">
                         <h2>Solora</h2>
                         <p>The ultimate forecast tool for photographers and adventurers to capture perfect sunrises, sunsets, and celestial events.</p>
@@ -62,7 +64,9 @@
 
             <div class="work-item" data-app-id="6752911194">
                 <div class="app-header">
-                    <img src="images/apps/cogno.jpg" alt="Cogno App Icon" class="app-icon">
+                    <div class="app-icon-shell">
+                        <img src="images/apps/cogno.jpg" alt="Cogno App Icon" class="app-icon">
+                    </div>
                     <div class="app-info">
                         <h2>Cogno</h2>
                         <p>Your command center for movies, series, anime, manga, and books. Track, discover, and sync your entertainment across all Apple devices.</p>
@@ -80,7 +84,9 @@
 
             <div class="work-item" data-app-id="6651860798">
                 <div class="app-header">
-                    <img src="images/apps/olamar.jpg" alt="Olamar App Icon" class="app-icon">
+                    <div class="app-icon-shell">
+                        <img src="images/apps/olamar.jpg" alt="Olamar App Icon" class="app-icon">
+                    </div>
                     <div class="app-info">
                         <h2>Olamar</h2>
                         <p>Get real-time marine forecasts, wave heights, and surf conditions for thousands of beaches worldwide.</p>
@@ -98,7 +104,9 @@
 
             <div class="work-item" data-app-id="916525681">
                 <div class="app-header">
-                    <img src="images/apps/dinata.svg" alt="Dinata App Icon" class="app-icon">
+                    <div class="app-icon-shell">
+                        <img src="images/apps/dinata.svg" alt="Dinata App Icon" class="app-icon">
+                    </div>
                     <div class="app-info">
                         <h2>Dinata</h2>
                         <p>A text-to-speech app to help people with speech disabilities communicate through their device.</p>
@@ -116,7 +124,9 @@
 
             <div class="work-item" data-app-id="6740244417">
                 <div class="app-header">
-                    <img src="images/apps/wige.jpg" alt="Wige App Icon" class="app-icon">
+                    <div class="app-icon-shell">
+                        <img src="images/apps/wige.jpg" alt="Wige App Icon" class="app-icon">
+                    </div>
                     <div class="app-info">
                         <h2>Wige</h2>
                         <p>Transforms every event into an unforgettable celebration. Create and customize your gift exchanges with two exciting modes.</p>
@@ -134,7 +144,9 @@
 
             <div class="work-item" data-app-id="1182999726">
                 <div class="app-header">
-                    <img src="images/apps/nimblit.png" alt="Nimblit App Icon" class="app-icon">
+                    <div class="app-icon-shell">
+                        <img src="images/apps/nimblit.png" alt="Nimblit App Icon" class="app-icon">
+                    </div>
                     <div class="app-info">
                         <h2>Nimblit</h2>
                         <p>Challenge your mind with a set of fun and engaging brain-training games and puzzles.</p>
@@ -153,211 +165,145 @@
 
     </section>
     
+    <script src="js/app-screenshot-manifest.js?v=20260318-2"></script>
     <script>
-        const APP_STORE_PROXIES = [
-            (url) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-            (url) => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`
-        ];
-        const FETCH_TIMEOUT_MS = 8000;
+        const APP_SCREENSHOT_MANIFEST = window.APP_SCREENSHOT_MANIFEST || {};
+        const DEFAULT_THEME = {
+            primary: [214, 220, 232],
+            secondary: [248, 249, 252],
+            accent: [255, 255, 255]
+        };
 
-        function getAppStoreContext(appStoreUrl) {
-            try {
-                const parsedUrl = new URL(appStoreUrl);
-                const pathParts = parsedUrl.pathname.split('/').filter(Boolean);
-                const country = pathParts[0] || 'us';
-                const appIdMatch = parsedUrl.pathname.match(/id(\d+)/);
-
-                return {
-                    pageUrl: parsedUrl.href,
-                    country,
-                    appId: appIdMatch ? appIdMatch[1] : null
-                };
-            } catch (error) {
-                console.warn('Invalid App Store URL:', appStoreUrl, error);
-                return { pageUrl: appStoreUrl, country: 'us', appId: null };
-            }
+        function clampChannel(value) {
+            return Math.max(0, Math.min(255, Math.round(value)));
         }
 
-        async function fetchAppStoreHtml(appStoreUrl) {
-            let lastError = null;
+        function mixColors(colorA, colorB, weight = 0.5) {
+            return colorA.map((channel, index) =>
+                clampChannel(channel * (1 - weight) + colorB[index] * weight)
+            );
+        }
 
-            for (const buildProxyUrl of APP_STORE_PROXIES) {
-                const proxiedUrl = buildProxyUrl(appStoreUrl);
+        function rgbToCss(color) {
+            return color.map(clampChannel).join(', ');
+        }
 
+        function rgbToHsl([r, g, b]) {
+            const red = r / 255;
+            const green = g / 255;
+            const blue = b / 255;
+            const max = Math.max(red, green, blue);
+            const min = Math.min(red, green, blue);
+            const lightness = (max + min) / 2;
+
+            if (max === min) {
+                return { h: 0, s: 0, l: lightness };
+            }
+
+            const delta = max - min;
+            const saturation = lightness > 0.5
+                ? delta / (2 - max - min)
+                : delta / (max + min);
+
+            let hue;
+            switch (max) {
+                case red:
+                    hue = ((green - blue) / delta + (green < blue ? 6 : 0)) / 6;
+                    break;
+                case green:
+                    hue = ((blue - red) / delta + 2) / 6;
+                    break;
+                default:
+                    hue = ((red - green) / delta + 4) / 6;
+                    break;
+            }
+
+            return { h: hue, s: saturation, l: lightness };
+        }
+
+        function extractThemeFromIcon(image) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d', { willReadFrequently: true });
+
+            if (!context) {
+                return DEFAULT_THEME;
+            }
+
+            const sampleSize = 28;
+            canvas.width = sampleSize;
+            canvas.height = sampleSize;
+            context.drawImage(image, 0, 0, sampleSize, sampleSize);
+
+            const { data } = context.getImageData(0, 0, sampleSize, sampleSize);
+            const average = [0, 0, 0];
+            const vibrant = [0, 0, 0];
+            let averageWeight = 0;
+            let vibrantWeight = 0;
+
+            for (let index = 0; index < data.length; index += 4) {
+                const alpha = data[index + 3];
+                if (alpha < 180) continue;
+
+                const color = [data[index], data[index + 1], data[index + 2]];
+                const { s, l } = rgbToHsl(color);
+                const baseWeight = alpha / 255;
+
+                average[0] += color[0] * baseWeight;
+                average[1] += color[1] * baseWeight;
+                average[2] += color[2] * baseWeight;
+                averageWeight += baseWeight;
+
+                const vibrancy = Math.max(0, s - 0.12) * (1 - Math.abs(l - 0.55));
+                if (vibrancy > 0) {
+                    vibrant[0] += color[0] * vibrancy;
+                    vibrant[1] += color[1] * vibrancy;
+                    vibrant[2] += color[2] * vibrancy;
+                    vibrantWeight += vibrancy;
+                }
+            }
+
+            if (!averageWeight) {
+                return DEFAULT_THEME;
+            }
+
+            const averageColor = average.map((channel) => channel / averageWeight);
+            const primaryColor = vibrantWeight
+                ? vibrant.map((channel) => channel / vibrantWeight)
+                : averageColor;
+
+            return {
+                primary: primaryColor.map(clampChannel),
+                secondary: mixColors(primaryColor, [255, 255, 255], 0.84),
+                accent: mixColors(averageColor, [255, 255, 255], 0.64)
+            };
+        }
+
+        function applyThemeToCard(card, theme) {
+            card.style.setProperty('--app-primary-rgb', rgbToCss(theme.primary));
+            card.style.setProperty('--app-secondary-rgb', rgbToCss(theme.secondary));
+            card.style.setProperty('--app-accent-rgb', rgbToCss(theme.accent));
+            card.style.setProperty('--app-shadow-rgb', rgbToCss(mixColors(theme.primary, [70, 84, 110], 0.52)));
+        }
+
+        function themeCardFromIcon(card) {
+            const icon = card.querySelector('.app-icon');
+            if (!icon) return;
+
+            const applyTheme = () => {
                 try {
-                    const response = await fetchWithTimeout(proxiedUrl, { cache: 'no-store' });
-                    if (!response.ok) {
-                        throw new Error(`Proxy returned ${response.status}`);
-                    }
-
-                    const html = await response.text();
-                    if (html.includes('<html') || html.includes('<!DOCTYPE html')) {
-                        return html;
-                    }
-
-                    throw new Error('Proxy returned unexpected content');
+                    applyThemeToCard(card, extractThemeFromIcon(icon));
                 } catch (error) {
-                    lastError = error;
+                    applyThemeToCard(card, DEFAULT_THEME);
                 }
+            };
+
+            if (icon.complete) {
+                applyTheme();
+                return;
             }
 
-            throw lastError || new Error('Unable to load App Store page');
-        }
-
-        async function fetchWithTimeout(url, options = {}) {
-            const controller = new AbortController();
-            const timeoutId = window.setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-
-            try {
-                return await fetch(url, {
-                    ...options,
-                    signal: controller.signal
-                });
-            } finally {
-                window.clearTimeout(timeoutId);
-            }
-        }
-
-        function parseSrcset(srcset = '') {
-            return srcset
-                .split(',')
-                .map((entry) => {
-                    const [url, descriptor] = entry.trim().split(/\s+/);
-                    const width = parseInt((descriptor || '').replace('w', ''), 10) || 0;
-
-                    return { url, width };
-                })
-                .filter(({ url }) => Boolean(url));
-        }
-
-        function getImageBaseUrl(url) {
-            return url.replace(/\/\d+x\d+bb(?:-\d+)?\.(?:webp|png|jpe?g)$/i, '');
-        }
-
-        function isScreenshotUrl(url, requireDeviceName = false) {
-            if (!url || !/mzstatic\.com/i.test(url) || /Placeholder|AppIcon/i.test(url)) {
-                return false;
-            }
-
-            if (requireDeviceName && !/(iPhone|iPad|AppleTV|watch|Mac)/i.test(url)) {
-                return false;
-            }
-
-            return /\/\d+x\d+bb(?:-\d+)?\.(?:webp|png|jpe?g)$/i.test(url);
-        }
-
-        function pickLargestCandidate(srcset, requireDeviceName = false) {
-            return parseSrcset(srcset)
-                .filter(({ url }) => isScreenshotUrl(url, requireDeviceName))
-                .reduce((largest, candidate) => {
-                    if (!largest || candidate.width > largest.width) {
-                        return candidate;
-                    }
-
-                    return largest;
-                }, null);
-        }
-
-        function dedupeScreenshotCandidates(candidates) {
-            const screenshotMap = new Map();
-
-            for (const candidate of candidates) {
-                if (!candidate) continue;
-
-                const key = getImageBaseUrl(candidate.url);
-                const existing = screenshotMap.get(key);
-
-                if (!existing || candidate.width > existing.width) {
-                    screenshotMap.set(key, candidate);
-                }
-            }
-
-            return [...screenshotMap.values()].map(({ url }) => url);
-        }
-
-        function extractFromScreenshotShelf(doc) {
-            const sections = [
-                ...doc.querySelectorAll('section[id^="product_media_phone"]'),
-                ...doc.querySelectorAll('section[id*="product_media_phone"]'),
-                ...doc.querySelectorAll('section[id*="product_media_iphone"]'),
-                ...doc.querySelectorAll('section[id*="product_media"]')
-            ];
-
-            const pictures = sections.flatMap((section) =>
-                [...section.querySelectorAll(
-                    '.artwork-component--orientation-portrait picture, .artwork-component--orientation-landscape picture'
-                )]
-            );
-
-            return dedupeScreenshotCandidates(
-                pictures.map((picture) => {
-                    const source =
-                        picture.querySelector('source[type="image/jpeg"]') ||
-                        picture.querySelector('source[type="image/webp"]') ||
-                        picture.querySelector('source[srcset]');
-
-                    return pickLargestCandidate(source?.getAttribute('srcset') || '');
-                })
-            );
-        }
-
-        function extractFromAllSources(doc) {
-            const sources = [
-                ...doc.querySelectorAll('source[srcset*="iPhone_"]'),
-                ...doc.querySelectorAll('source[srcset*="iPad_"]')
-            ];
-
-            return dedupeScreenshotCandidates(
-                sources.map((source) => pickLargestCandidate(source.getAttribute('srcset') || '', true))
-            );
-        }
-
-        function extractScreenshotsFromHtml(html) {
-            const doc = new DOMParser().parseFromString(html, 'text/html');
-            const screenshotShelfImages = extractFromScreenshotShelf(doc);
-            if (screenshotShelfImages.length > 0) {
-                return screenshotShelfImages;
-            }
-
-            return extractFromAllSources(doc);
-        }
-
-        async function fetchAppScreenshots(appStoreUrl) {
-            const { pageUrl, appId, country } = getAppStoreContext(appStoreUrl);
-
-            try {
-                const html = await fetchAppStoreHtml(pageUrl);
-                const screenshots = extractScreenshotsFromHtml(html);
-
-                if (screenshots.length > 0) {
-                    return screenshots;
-                }
-            } catch (error) {
-                console.warn(`App Store parsing failed for ${pageUrl}, falling back:`, error);
-            }
-
-            return appId ? fetchFromItunesAPI(appId, country) : [];
-        }
-
-        async function fetchFromItunesAPI(appId, country = 'us') {
-            try {
-                const url = `https://itunes.apple.com/lookup?id=${appId}&entity=software&country=${country}&_=${Date.now()}`;
-                const response = await fetchWithTimeout(url);
-                const data = await response.json();
-                
-                if (data.results && data.results.length > 0) {
-                    const app = data.results[0];
-                    const screenshots = [
-                        ...(app.screenshotUrls || []),
-                        ...(app.ipadScreenshotUrls || [])
-                    ];
-                    return screenshots;
-                }
-                return [];
-            } catch (error) {
-                console.error(`iTunes API fetch failed for app ${appId}:`, error);
-                return [];
-            }
+            icon.addEventListener('load', applyTheme, { once: true });
+            icon.addEventListener('error', () => applyThemeToCard(card, DEFAULT_THEME), { once: true });
         }
 
         function renderScreenshots(container, screenshots, appName) {
@@ -382,42 +328,34 @@
             container.replaceChildren(paragraph);
         }
 
-        async function loadAllScreenshots() {
+        function loadAllScreenshots() {
             const appItems = [...document.querySelectorAll('.work-item[data-app-id]')];
 
-            await Promise.allSettled(appItems.map(async (item) => {
+            appItems.forEach((item) => {
+                themeCardFromIcon(item);
+
                 const screenshotsScroll = item.querySelector('.screenshots-scroll');
-                const appStoreUrl = item.querySelector('.app-store-badge')?.href;
+                const appId = item.dataset.appId;
                 const appName = item.querySelector('h2')?.textContent?.trim() || 'App';
 
-                if (!screenshotsScroll || !appStoreUrl) {
+                if (!screenshotsScroll || !appId) {
                     return;
                 }
 
-                try {
-                    const screenshots = await fetchAppScreenshots(appStoreUrl);
+                const screenshots = APP_SCREENSHOT_MANIFEST[appId] || [];
 
-                    if (screenshots.length > 0) {
-                        renderScreenshots(screenshotsScroll, screenshots, appName);
-                        return;
-                    }
-
-                    renderScreenshotMessage(screenshotsScroll, 'Screenshots not available in browser');
-                } catch (error) {
-                    console.error(`Failed to load screenshots for ${appName}:`, error);
-                    renderScreenshotMessage(screenshotsScroll, 'Screenshots not available in browser');
+                if (screenshots.length > 0) {
+                    renderScreenshots(screenshotsScroll, screenshots, appName);
+                    return;
                 }
-            }));
+
+                renderScreenshotMessage(screenshotsScroll, 'Screenshots not available');
+            });
         }
 
         // Load screenshots when DOM is ready
         document.addEventListener('DOMContentLoaded', loadAllScreenshots);
     </script>
-
-    <script src="js/photography.js"></script>
-    <script src="js/library.js"></script>
-    <script src="js/script.js"></script>
-    <script src="js/retina.js"></script>
     <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
